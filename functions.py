@@ -1,5 +1,5 @@
 import pandas as pd 
-import numpy as np
+import numpy as np 
 import re
 
 def has_pattern(s, pattern):
@@ -30,3 +30,23 @@ def has_complex(protein_change):
         
         return bool(re.search(pattern1, protein_change)) or bool(re.search(pattern2, protein_change))
     return False
+
+
+def parse_protein_change(protein_change):
+    text = str(protein_change)
+
+    match1 = re.match(r"p\.([A-Z])(\d+)([A-Z*X])", text)
+    if match1:
+        return pd.Series(match1.groups())
+    
+    match2 = re.match(r"p\.([A-Z])(\d+)fs\*?\d*", text)
+    if match2:
+        aa_from, pos = match2.groups()
+        return pd.Series([aa_from, pos, 'fs'])
+
+    match3 = re.match(r"p\.([A-Z])(\d+)fs", text)
+    if match3:
+        aa_from, pos = match3.groups()
+        return pd.Series([aa_from, pos, 'fs'])
+
+    return pd.Series([None, None, None])
